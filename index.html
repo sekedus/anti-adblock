@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+<meta name="renderer" content="webkit">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Simple AADB</title>
+<style type='text/css'>
+/* Simple AADB by http://bit.do/sekedus */
+*, *:before,*:after{box-sizing: border-box;}
+#keep-js{visibility:visible;background:#ebeff2;position:fixed;top:0;left:0;width:100%;height:100%;display:-webkit-flex;display:flex;}
+.keep-lightbox{margin:auto;max-width:620px;position:relative;text-align:center;box-shadow:0 20px 10px -10px rgba(0,0,0,0.15);transform:rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1);animation:wobble .7s;}
+.keep-content{background:#4267b2;color:#f1f1f1;padding:10px 25px;font-family:'Raleway',sans-serif;line-height:1.5;}
+.keep-content h4{font-size:20px;margin:0 auto;padding:5px 0;}
+.keep-content a{text-decoration:none;color:#f1f1f1;}
+.keep-content .yellow{color:#fbeab5;}
+.keep-content .line{display:block;background:#f1f1f1;height:1px;}
+.keep-content .reload{position:absolute;bottom:8px;right:0;color:#111;z-index:9999;opacity:0;visibility:hidden;-webkit-transition:all .2s;transition:all .2s;}
+.keep-content:hover .reload{bottom:-30px;opacity:1;visibility:visible;}
+.keep-content .reload a{padding:10px 0 10px 10px;color:#616161;}
+.keep-content .reload a span{background:#4267b2;color:#fff;margin:0 0 0 8px;padding:10px 10px 8px;}
+.keep-content .reload2{margin:0 0 10px 0;}
+.keep-content .reload2 a{display:block;padding:10px;border-radius:5px;border:1px solid #f1f1f1;}
+.keep-content .reload2 a span{padding:10px 10px 8px;}
+
+.keep-lightbox p{font-size:16px;}
+@keyframes wobble{0%{transform:scale(0) rotate(-54deg) translatey(40px)}45%{transform:scale(1.1) rotate(20deg) translatey(0px)}60%{transform:scale(1) rotate(-15deg) translatey(0px)}77%{transform:scale(1) rotate(10deg) translatey(0px)}100%{transform:translatey(0)}}
+</style>
+</head>
+
+<body>
+<div class='content'>
+<p>Aktifkan Adblock Untuk Melihat Demo</p>
+
+<!--
+Simple Anti Adblock (Super AADB) by http://bit.do/sekedus
+
+Tested on browser:
+
+Chrome (Extensions)
+- Adblock ✔
+- Adblock Plus ✔
+- uBlock Origin ✔
+- Adguard AdBlocker ✔
+- etc..
+
+
+
+Changelog:
+
+v1.2.2 December 15, 2017
+- menambahkan pilihan tampilan bahasa Indonesia dan Inggris
+- merubah letak dan css tombol muat ulang halaman
+
+v1.2.0 December 06, 2017
+- menambahkan tomobol muat ulang halaman
+
+v1.1.9 December 05, 2017
+- menambahkan tinggi awal pada gambar target block
+- mengganti cek menjadi fungsi pemanggil
+- penambahan cek berdasarkan tinggi gambar
+- memindahkan cek ke urutan pertama (body)
+- menambahkan cek jika semua gambar telah selesai dimuat
+- mengganti gambar (target block)
+- menambahkan waktu tunggu pada fungsi pemanggil
+
+v1.1.2 December 04, 2017
+- penambahan cek berdasarkan element tidak tampil
+- penambahan cek berdasarkan gambar yang tidak dimuat
+- penambahan cek berdasarkan gambar yang dimuat
+- perubahan dan penambahan class (target block)
+- perubahan class menjadi variabel dan diganti dengan regex
+- penambahan gambar (target block)
+- menghapus waktu tunggu memulai script
+
+v1.0.5 December 03, 2017
+- penambahan random id
+- perbaikan bug: tidak tampil di browser mozilla firefox
+- perubahan dan penambahan class (target block)
+- penambahan cek berdasarkan visibility gambar
+- penambahan gambar (target block)
+
+v1.0.0  December 02, 2017
+Script released
+-->
+
+<noscript><style type='text/css'>body,.Blog,.post,.post-body{visibility:hidden;overflow:hidden;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}</style><div id='keep-js'><div class='keep-lightbox'><div class="keep-content"><p>Sorry, we detected Javascript in your browser is disabled, please <b><a class="yellow" href='http://enable-javascript.com/' rel='nofollow' target='_blank'>enable</a></b> Javascript in your browser and <span class='yellow' style='cursor:pointer;font-weight:bold;'>reload</span> the page to access this site. Thanks.</p><p><span class="line"></span></p><p>Maaf, kami mendeteksi Javascript pada browser anda tidak aktif, mohon <b><a class='yellow' href='http://enable-javascript.com/id/' rel='nofollow' target='_blank'>aktifkan</a></b> Javascript di browser anda dan <span class='yellow' style='cursor:pointer;font-weight:bold;'>muat ulang</span> halaman untuk mengakses situs ini. Terima Kasih.</p></div></div></div></noscript>
+</div>
+
+<script src="https://rawcdn.githack.com/sekedus/anti-adblock/16830c4bd479753900c12665bd541013a5df1392/images.js" type="text/javascript"></script>
+<script type="text/javascript">
+// Random Id
+function stringGen(len) {
+  var text = '';
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (var i=0; i < len; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
+
+function buildKeep() {
+  // Style to head
+  var kScript = d.createElement('script');
+  kScript.setAttribute('type', 'text/css');
+  kScript.textContent = '#' + tGen + '{position:fixed;top:0;left:0;width:100%;height:100%;display:-webkit-flex;display:flex;}';
+  
+  // Element to body
+  var kStr = '';
+  var tTitle = keepLang == 'id' ? 'terdeteksi' : 'detected';
+  var tDetail = keepLang == 'id' ? tIDetail : tEDetail;
+  var tReload = keepLang == 'id' ? 'Oke, Saya mengerti' : 'Okay, I&apos;ll do it';
+  kStr += '<div id="' + tGen + '"><div class="keep-lightbox"><div class="keep-content">';
+  if (keepLang != 'lang') {kStr += '<h4>Adblock <span class="yellow">' + tTitle + '</span> :(</h4>';}
+  kStr += keepLang == 'lang' ? '<p>' + tEDetail + '</p><p><span class="line"></span></p><p>' + tIDetail + '</p>' : '<p>' + tDetail + '</p>';
+  kStr += '<div class="';
+  kStr += keepLang == 'lang' ? 'reload' : 'reload2';
+  kStr += '"><a href="javascript:void(window.location.reload(true))" title="' + tReload + '">' + tReload + ' <span>&olarr;</span></a></div>';
+  kStr += '</div></div></div>';
+  
+  // Display element
+  eHead.appendChild(kScript);
+  eBody.innerHTML += kStr;
+  eBody.style.cssText = 'background:#ebeff2;overflow:hidden;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;';
+}
+	
+// Settings
+var keepLang = 'en'; // 'en' inggris, 'id' indonesia, dan 'lang' untuk 2 bahasa
+var tEDetail = 'Sorry, we detect your Adblock is active, please disable your Adblock or add this site to your Adblock <a href="https://www.wikihow.com/Disable-AdBlock" title="3 Ways to Disable AdBlock"><b><span class="yellow">whitelist</span></b></a> and reload this page. Thank you.';
+var tIDetail = 'Maaf, kami mendeteksi Adblock anda aktif, mohon nonaktifkan Adblock anda atau tambahkan situs ini ke dalam <a href="https://id.wikihow.com/Menonaktifkan-Adblock" title="3 Cara untuk Menonaktifkan Adblock"><b><span class="yellow">daftar putih</span></b></a> Adblock anda dan muat ulang halaman ini. Terima Kasih.';
+var tClass = 'googleads adsbygoogle keep';
+var d = document;
+var timeOut = 2000; // waktu muncul
+var tGen = stringGen(16);
+var imgLoaded = 0;
+var imgError = 0;
+var kChk = true;
+var eHead = d.getElementsByTagName('head')[0];
+var eBody = d.getElementsByTagName('body')[0];
+
+// insert image
+var imgStr = '';
+imgStr += '<div class="' + tClass + '" style="position:absolute;left:-100%;top:-100%;">';
+imgStr += '<a href="#" title="images"><img class="img-1" alt="images" src="http://googleads.g.doubleclick.net/favicon.ico" title="images"/><img class="img-2" alt="images" src="http://admedia.com/images/favicon.ico" title="images" /><img class="img-3" alt="images" src="https://mellowads.com/favicon.ico" title="images" /></a>';
+imgStr += '</div>';
+eBody.innerHTML += imgStr;
+
+// Check
+function keepCheck() {
+  for (var i = 0; i < imgLength; i++) {
+    if ((kElem.offsetWidth < 2) || (kElem.offsetHeight < 2) || (kElem.style.display == 'none') || (kElem.style.visibility == 'hidden') || (kImg[i].offsetWidth < 2) || (kImg[i].offsetHeight < 2) || (kImg[i].style.display == 'none') || (kImg[i].style.visibility == 'hidden')) {
+      if (i == imgLength-1) {
+        setTimeout(function() {buildKeep()}, timeOut); //Display element
+      }
+    }
+  }
+}
+
+function imgCheck(e) {
+  var images = e;
+  images.onerror = function() {
+    if (!kChk) return;
+    kChk = false;
+    kElem.setAttribute('style', 'display:none !important');
+    keepCheck(); //check
+    console.log('error');
+  };
+  images.onload = function() {
+    if (!kChk) return;
+    keepCheck(); //check
+    console.log('loaded');
+  };
+}
+
+// Check image
+var kClass = '.' + tClass.replace(/\s/g, '.');
+var kElem = d.querySelector(kClass);
+var kImg = d.querySelectorAll('.keep img');
+var imgLength = kImg.length;
+for (var i = 0; i < imgLength; i++) {
+  imgCheck(kImg[i]);
+}
+console.log(data.images);
+</script>
+</body>
+
+</html>
