@@ -1,4 +1,4 @@
-data = {
+aadb = {
     "images": [{
         "src": "http://googleads.g.doubleclick.net/favicon.ico"
     }, {
